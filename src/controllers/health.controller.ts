@@ -3,15 +3,19 @@ import {
     Get,
     HttpCode,
 } from 'routing-controllers';
-import { Service } from 'typedi';
+import { Service, Inject } from 'typedi';
+import { AppLogger } from '../utils/app-logger';
 
 @Service()
 @Controller('/health')
 export class HealthController {
-    constructor() { }
+    constructor(
+        private readonly logger: AppLogger
+    ) { }
     @Get()
     @HttpCode(200)
     async healthCheck(): Promise<string> {
+        this.logger.info(`${HealthController.name}.healthCheck called`)
         return "Text Analyzer";
     }
 }

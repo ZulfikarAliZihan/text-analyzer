@@ -1,9 +1,20 @@
 import 'reflect-metadata';
+import * as dotenv from 'dotenv';
+import { Container } from 'typedi';
 import * as express from 'express';
-import { useExpressServer } from 'routing-controllers';
+import { useContainer as ormUseContainer } from 'typeorm';
+import { useExpressServer, useContainer as routingUseContainer } from 'routing-controllers';
+import { AppDataSource } from './data-source'
+
+dotenv.config();
 
 async function bootstrap() {
     try {
+        routingUseContainer(Container);
+        ormUseContainer(Container);
+        await AppDataSource.initialize();
+        console.log('✅ Data Source has been initialized!');
+
         const app = express();
 
         app.use(express.json());

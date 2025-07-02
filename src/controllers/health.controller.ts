@@ -2,12 +2,12 @@ import {
     Controller,
     Get,
     HttpCode,
-    Authorized,
 } from 'routing-controllers';
+import { Service } from 'typedi';
 
-
+@Service()
 @Controller('/health')
-export class TextController {
+export class HealthController {
     constructor() { }
     @Get()
     @HttpCode(200)

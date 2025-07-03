@@ -21,11 +21,14 @@ async function bootstrap() {
 
         const app = express();
 
-        app.use(express.json());
         app.use(morgan('dev'))
 
         useExpressServer(app, {
             controllers: [__dirname + '/controllers/*.ts'],
+            routePrefix: '/api/v1',
+            validation: true,
+            classTransformer: true,
+            defaultErrorHandler: false
         });
 
         const PORT = process.env.PORT || 3000;

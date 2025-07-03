@@ -2,5 +2,9 @@
 /dist
 /node_modules
 
+# test 
+jest
+/coverage
+
 # env
 .env

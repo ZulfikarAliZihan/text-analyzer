@@ -23,7 +23,14 @@ export class UserService {
     async create(input: CreateUserInput): Promise<UserOutput> {
         this.logger.info(`${UserService.name}.create called`)
 
-        return plainToClass(UserOutput, {}, {
+        const user = new User();
+        user.name = input.name;
+        user.username = input.username;
+        user.email = input.email;
+        user.password = await hash(input.password, 10);
+
+        const res = await this.userRepo.save(user);
+        return plainToClass(UserOutput, user, {
             excludeExtraneousValues: true,
         });
     }

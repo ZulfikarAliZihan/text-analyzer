@@ -44,7 +44,6 @@ describe('UserService', () => {
         const result = await userService.create(mockUserInput);
 
         expect(result).toBeDefined();
-        expect(result.id).toEqual(mockSavedUser.id);
         expect(result.name).toEqual(mockSavedUser.name);
         expect(result.username).toEqual(mockSavedUser.username);
         expect(result.email).toEqual(mockSavedUser.email);

@@ -1,9 +1,14 @@
+
+
+
+
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
 import { Text } from '../entities/text.entity';
 import { AppDataSource } from '../data-source';
 import { AppLogger } from '../utils/app-logger';
 import { NotFoundError } from 'routing-controllers';
+import { LongestWordsInParagraph } from '../dtos/text-analysis.dto';
 
 
 @Service()
@@ -53,5 +58,80 @@ export class TextService {
 
         return texts;
     }
+
+    async analyzeWordCount(textId: string, userId: string): Promise<number> {
+        this.logger.info(`${TextService.name}.analyzeWordCount called`)
+
+        const text = await this.get(textId, userId);
+        return this.splitTextIntoWords(text.content).length;
+    }
+
+    async analyzeCharacterCount(textId: string, userId: string): Promise<number> {
+        this.logger.info(`${TextService.name}.analyzeCharacterCount called`)
+
+        const text = await this.get(textId, userId);
+        return text.content.replace(/\s+/g, '').length;
+    }
+
+    async analyzeSentenceCount(textId: string, userId: string): Promise<number> {
+        this.logger.info(`${TextService.name}.analyzeSentenceCount called`)
+
+        const text = await this.get(textId, userId);
+        const sentences = text.content.match(/[^\.!\?]+[\.!\?]+/g);
+        return sentences ? sentences.length : 0;
+    }
+
+    async analyzeParagraphCount(textId: string, userId: string): Promise<number> {
+        this.logger.info(`${TextService.name}.analyzeParagraphCount called`)
+
+        const text = await this.get(textId, userId);
+        const paragraphs = text.content.split('\n\n');
+        return paragraphs.filter(p => p.trim().length > 0).length;
+    }
+
+    async findLongestWordsInParagraphs(textId: string, userId: string): Promise<LongestWordsInParagraph[]> {
+        this.logger.info(`${TextService.name}.analyzeParagraphCount called`)
+
+        const text = await this.get(textId, userId);
+        const paragraphs = text.content.split('\n\n');
+
+        const longestWordsPerParagraph: LongestWordsInParagraph[] = paragraphs.map((paragraphText, index) => {
+            const words = this.splitTextIntoWords(paragraphText)
+
+            if (words.length === 0) {
+                return {
+                    paragraph: index + 1,
+                    longestWords: [],
+                };
+            }
+
+            let maxLength = 0;
+            for (const word of words) {
+                if (word.length > maxLength) {
+                    maxLength = word.length;
+                }
+            }
+
+            const longestWords = words.filter(word => word.length === maxLength);
+
+            const uniqueLongestWords = [...new Set(longestWords)];
+
+            return {
+                paragraph: index + 1,
+                longestWords: uniqueLongestWords,
+            };
+        });
+
+        return longestWordsPerParagraph
+    }
+
+    private splitTextIntoWords(text: string): string[] {
+        return text
+            .toLowerCase()
+            .replace(/[^\w\s]/g, '')
+            .split(/\s+/)
+            .filter(word => word.length > 0);
+    }
 }
+
 

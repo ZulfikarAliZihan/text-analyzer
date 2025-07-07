@@ -27,9 +27,11 @@ import { TextParam } from '../dtos/text-param.dto';
 import { CreateTextInput } from '../dtos/create-text-input.dto';
 import { UpdateTextInput } from '../dtos/update-text-input.dto';
 import { plainToClass } from 'class-transformer';
+import { RateLimitMiddleware } from '../middlewares/rate-limit.middleware';
 
 @Service()
 @UseBefore(AuthMiddleware)
+@UseBefore(RateLimitMiddleware)
 @JsonController('/texts')
 export class TextController {
     constructor(

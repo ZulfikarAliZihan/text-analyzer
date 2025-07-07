@@ -4,6 +4,7 @@ import {
     HttpCode,
     Post,
     BadRequestError,
+    UseBefore,
 } from 'routing-controllers';
 import { Service, Inject } from 'typedi';
 import { AppLogger } from '../utils/app-logger';
@@ -14,8 +15,10 @@ import { isUniqueKeyViolationError } from '..//utils/database.error';
 import { UNIQUE_USERS_EMAIL, UNIQUE_USERS_USERNAME } from '..//entities/user.entity';
 import { GetUserTokenInput } from '../dtos/get-user-token-input.dto';
 import { GetUserTokenOutput } from '../dtos/get-user-token-output.dto';
+import { RateLimitMiddleware } from '../middlewares/rate-limit.middleware';
 
 @Service()
+@UseBefore(RateLimitMiddleware)
 @JsonController('/users')
 export class UserController {
     constructor(

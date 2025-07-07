@@ -2,11 +2,14 @@ import {
     Controller,
     Get,
     HttpCode,
+    UseBefore,
 } from 'routing-controllers';
 import { Service, Inject } from 'typedi';
 import { AppLogger } from '../utils/app-logger';
+import { RateLimitMiddleware } from '../middlewares/rate-limit.middleware';
 
 @Service()
+@UseBefore(RateLimitMiddleware)
 @Controller('/health')
 export class HealthController {
     constructor(

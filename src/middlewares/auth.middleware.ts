@@ -7,7 +7,6 @@ import { verifyToken } from '../utils/jwt';
 export class AuthMiddleware implements ExpressMiddlewareInterface {
     use(req: Request, res: Response, next: NextFunction) {
         const authHeader = req.headers.authorization;
-        console.log('from AuthMiddleware')
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             req['user'] = null;
             return res.status(401).json({ message: 'Token missing' });

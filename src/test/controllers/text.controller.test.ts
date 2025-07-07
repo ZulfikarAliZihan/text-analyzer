@@ -29,6 +29,11 @@ describe('TextController', () => {
         update: jest.fn(),
         delete: jest.fn(),
         getAllByUserId: jest.fn(),
+        analyzeWordCount: jest.fn(),
+        analyzeCharacterCount: jest.fn(),
+        analyzeSentenceCount: jest.fn(),
+        analyzeParagraphCount: jest.fn(),
+        findLongestWordsInParagraphs: jest.fn(),
     };
 
     const mockTextId = 'ba1f4f6a-c986-433c-87e6-1a215ce436fa';
@@ -119,4 +124,75 @@ describe('TextController', () => {
             expect(mockTextService.getAllByUserId).toHaveBeenCalledWith(mockUserId);
         });
     });
+
+    describe('GET /texts/:id/word-count', () => {
+        it('should return word count of a text', async () => {
+            mockTextService.analyzeWordCount = jest.fn().mockResolvedValue(123);
+
+            const res = await request(app).get(`/texts/${mockTextId}/word-count`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ wordCount: 123 });
+            expect(mockTextService.analyzeWordCount).toHaveBeenCalledWith(mockTextId, mockUserId);
+        });
+    });
+
+    describe('GET /texts/:id/character-count', () => {
+        it('should return character count of a text', async () => {
+            mockTextService.analyzeCharacterCount = jest.fn().mockResolvedValue(456);
+
+            const res = await request(app).get(`/texts/${mockTextId}/character-count`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ characterCount: 456 });
+            expect(mockTextService.analyzeCharacterCount).toHaveBeenCalledWith(mockTextId, mockUserId);
+        });
+    });
+
+    describe('GET /texts/:id/sentence-count', () => {
+        it('should return sentence count of a text', async () => {
+            mockTextService.analyzeSentenceCount = jest.fn().mockResolvedValue(7);
+
+            const res = await request(app).get(`/texts/${mockTextId}/sentence-count`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ sentenceCount: 7 });
+            expect(mockTextService.analyzeSentenceCount).toHaveBeenCalledWith(mockTextId, mockUserId);
+        });
+    });
+
+    describe('GET /texts/:id/paragraph-count', () => {
+        it('should return paragraph count of a text', async () => {
+            mockTextService.analyzeParagraphCount = jest.fn().mockResolvedValue(3);
+
+            const res = await request(app).get(`/texts/${mockTextId}/paragraph-count`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({ paragraphCount: 3 });
+            expect(mockTextService.analyzeParagraphCount).toHaveBeenCalledWith(mockTextId, mockUserId);
+        });
+    });
+
+    describe('GET /texts/:id/longest-words', () => {
+        it('should return longest words grouped by paragraph', async () => {
+            const mockParagraphs = [
+                { paragraph: 1, longestWords: ['extraordinary', 'phenomenon'] },
+                { paragraph: 2, longestWords: ['communication'] },
+            ];
+            mockTextService.findLongestWordsInParagraphs = jest.fn().mockResolvedValue(mockParagraphs);
+
+            const res = await request(app).get(`/texts/${mockTextId}/longest-words`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual({
+                paragraphs: [
+                    { paragraph: 1, longestWords: ['extraordinary', 'phenomenon'] },
+                    { paragraph: 2, longestWords: ['communication'] },
+                ],
+            });
+            expect(mockTextService.findLongestWordsInParagraphs).toHaveBeenCalledWith(mockTextId, mockUserId);
+        });
+    });
+
 });
+

@@ -7,6 +7,8 @@ import { useContainer as ormUseContainer } from 'typeorm';
 import { useExpressServer, useContainer as routingUseContainer } from 'routing-controllers';
 import { AppDataSource } from './data-source'
 import { AppLogger } from './utils/app-logger'
+import * as swaggerUi from 'swagger-ui-express';
+import * as swaggerDocument from './swagger.json';
 
 dotenv.config();
 const logger = new AppLogger();
@@ -31,9 +33,12 @@ async function bootstrap() {
             defaultErrorHandler: true
         });
 
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {
-            logger.info(`Server running on port ${PORT}`)
+            logger.info(`Server running on port ${PORT}`);
+            logger.info(`Swagger docs available at http://localhost:${PORT}/api-docs`);
         });
 
     } catch (error) {

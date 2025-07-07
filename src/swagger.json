@@ -1,0 +1,509 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Text Analyzer API",
+        "description": "API for analyzing texts",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000/api/v1",
+            "description": "Development server"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "parameters": {
+            "textId": {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Text ID"
+            }
+        },
+        "schemas": {
+            "TextResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the resource was created",
+                        "example": "2025-07-07T12:34:56.789Z"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the resource was updated",
+                        "example": "2025-07-07T12:34:56.789Z"
+                    }
+                }
+            },
+            "UserRegisterRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password"
+                    }
+                },
+                "required": [
+                    "name",
+                    "username",
+                    "email",
+                    "password"
+                ]
+            },
+            "UserLoginRequest": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password"
+                    }
+                },
+                "required": [
+                    "username",
+                    "password"
+                ]
+            },
+            "UserResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/users": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Register a new user",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRegisterRequest"
+                            },
+                            "example": {
+                                "name": "zihan",
+                                "username": "zihan",
+                                "email": "zihan@gmail.com",
+                                "password": "123456"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Login a user",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginRequest"
+                            },
+                            "example": {
+                                "username": "zihan",
+                                "password": "123456"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accessToken": {
+                                            "type": "string",
+                                            "description": "JWT access token"
+                                        }
+                                    },
+                                    "example": {
+                                        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/texts": {
+            "post": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Create a new text",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "content"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Text created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TextResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Get all user texts",
+                "responses": {
+                    "200": {
+                        "description": "List of texts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TextResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/texts/{id}": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/textId"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Get a specific text",
+                "responses": {
+                    "200": {
+                        "description": "Text details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TextResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Update a text",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "content"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Text updated successfully"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Delete a text",
+                "responses": {
+                    "204": {
+                        "description": "Text deleted successfully"
+                    }
+                }
+            }
+        },
+        "/texts/{id}/word-count": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/textId"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Get word count for a text",
+                "responses": {
+                    "200": {
+                        "description": "Word count information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "wordCount": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/texts/{id}/character-count": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/textId"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Get character count for a text",
+                "responses": {
+                    "200": {
+                        "description": "Character count information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "characterCount": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/texts/{id}/sentence-count": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/textId"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Get sentence count for a text",
+                "responses": {
+                    "200": {
+                        "description": "Sentence count information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "sentenceCount": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/texts/{id}/paragraph-count": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/textId"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Get paragraph count for a text",
+                "responses": {
+                    "200": {
+                        "description": "Paragraph count information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "paragraphCount": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/texts/{id}/longest-words": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/textId"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Texts"
+                ],
+                "summary": "Get longest words in paragraphs",
+                "responses": {
+                    "200": {
+                        "description": "Longest words information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "paragraphs": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "paragraph": {
+                                                        "type": "integer",
+                                                        "format": "int32"
+                                                    },
+                                                    "longestWords": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

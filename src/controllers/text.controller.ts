@@ -10,6 +10,13 @@ import {
     UseBefore,
     Params,
 } from 'routing-controllers';
+import {
+    CharacterCountOutput,
+    LongestWordsOutput,
+    ParagraphCountOutput,
+    SentenceCountOutput,
+    WordCountOutput
+} from '../dtos/text-analysis.dto';
 import { Service, Inject } from 'typedi';
 import { Request } from 'express';
 import { Text } from '../entities/text.entity';
@@ -19,6 +26,7 @@ import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { TextParam } from '../dtos/text-param.dto';
 import { CreateTextInput } from '../dtos/create-text-input.dto';
 import { UpdateTextInput } from '../dtos/update-text-input.dto';
+import { plainToClass } from 'class-transformer';
 
 @Service()
 @UseBefore(AuthMiddleware)
@@ -82,5 +90,78 @@ export class TextController {
         this.logger.info(`${TextController.name}.getAllUserTexts called`)
         const userId = request['user']?.userId;
         return this.textService.getAllByUserId(userId);
+    }
+
+    @Get('/:id/word-count')
+    @HttpCode(200)
+    async getWordCount(
+        @Params() params: TextParam,
+        @Req() request: Request,
+    ): Promise<WordCountOutput> {
+        this.logger.info(`${TextController.name}.getWordCount called`);
+        const userId = request['user']?.userId;
+        const wordCount = await this.textService.analyzeWordCount(params.id, userId);
+
+        return plainToClass(WordCountOutput, { wordCount: wordCount }, {
+            excludeExtraneousValues: true,
+        });
+    }
+
+    @Get('/:id/character-count')
+    @HttpCode(200)
+    async getCharacterCount(
+        @Params() params: TextParam,
+        @Req() request: Request,
+    ): Promise<CharacterCountOutput> {
+        this.logger.info(`${TextController.name}.getCharacterCount called`);
+        const userId = request['user']?.userId;
+        const characterCount = await this.textService.analyzeCharacterCount(params.id, userId);
+
+        return plainToClass(CharacterCountOutput, { characterCount: characterCount }, {
+            excludeExtraneousValues: true,
+        });
+    }
+
+    @Get('/:id/sentence-count')
+    @HttpCode(200)
+    async getSentenceCount(
+        @Params() params: TextParam,
+        @Req() request: Request,
+    ): Promise<SentenceCountOutput> {
+        this.logger.info(`${TextController.name}.getSentenceCount called`);
+        const userId = request['user']?.userId;
+        const sentenceCount = await this.textService.analyzeSentenceCount(params.id, userId);
+
+        return plainToClass(SentenceCountOutput, { sentenceCount: sentenceCount }, {
+            excludeExtraneousValues: true,
+        });
+    }
+
+    @Get('/:id/paragraph-count')
+    @HttpCode(200)
+    async getParagraphCount(
+        @Params() params: TextParam,
+        @Req() request: Request,
+    ): Promise<{ paragraphCount: number }> {
+        this.logger.info(`${TextController.name}.getParagraphCount called`);
+        const userId = request['user']?.userId;
+        const paragraphCount = await this.textService.analyzeParagraphCount(params.id, userId);
+
+        return plainToClass(ParagraphCountOutput, { paragraphCount: paragraphCount }, {
+            excludeExtraneousValues: true,
+        });
+    }
+
+    @Get('/:id/longest-words')
+    @HttpCode(200)
+    async getLongestWords(
+        @Params() params: TextParam,
+        @Req() request: Request,
+    ): Promise<LongestWordsOutput> {
+        this.logger.info(`${TextController.name}.getLongestWords called`);
+        const userId = request['user']?.userId;
+        const longestWords = await this.textService.findLongestWordsInParagraphs(params.id, userId);
+
+        return plainToClass(LongestWordsOutput, { paragraphs: longestWords });
     }
 }

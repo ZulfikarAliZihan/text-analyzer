@@ -4,7 +4,6 @@ import { AppLogger } from '../../utils/app-logger';
 import { NotFoundError } from 'routing-controllers';
 import { AppDataSource } from '../../data-source';
 import { Repository } from 'typeorm';
-import { CreateUserInput } from '../../dtos/create-user-input.dto';
 import { User } from '../../entities/user.entity';
 
 jest.mock('../../data-source');
@@ -15,7 +14,7 @@ describe('TextService', () => {
     let mockRepo: jest.Mocked<Repository<Text>>;
     let mockLogger: jest.Mocked<AppLogger>;
 
-    const textContent = 'hello';
+    const textContent = 'Hello. How are you? Fine!';
     const mockUser: User = {
         id: 'user-123',
         name: 'Zulfikar Ali',
@@ -25,9 +24,10 @@ describe('TextService', () => {
         createdAt: new Date(),
         updatedAt: new Date()
     };
+    const mockTextId = 'ba1f4f6a-c986-433c-87e6-1a215ce436fa';
     const text: Text = {
-        id: '1',
-        content: 'hello',
+        id: mockTextId,
+        content: textContent,
         userId: mockUser.id,
         user: mockUser,
         createdAt: new Date(),
@@ -75,7 +75,7 @@ describe('TextService', () => {
         it('should return the text when found', async () => {
             mockRepo.findOne.mockResolvedValue(text);
 
-            const result = await service.get('1', mockUser.id);
+            const result = await service.get(mockTextId, mockUser.id);
 
             expect(mockLogger.info).toHaveBeenCalledWith('TextService.get called');
             expect(result).toEqual(text);
@@ -84,7 +84,7 @@ describe('TextService', () => {
         it('should throw NotFoundError if text not found', async () => {
             mockRepo.findOne.mockResolvedValue(null);
 
-            await expect(service.get('1', 'user-123')).rejects.toThrow(NotFoundError);
+            await expect(service.get(mockTextId, mockUser.id)).rejects.toThrow(NotFoundError);
         });
     });
 
@@ -92,10 +92,10 @@ describe('TextService', () => {
         it('should call update on repository', async () => {
             mockRepo.update.mockResolvedValue(null);
 
-            await service.update('1', 'new text', 'user-123');
+            await service.update(mockTextId, 'new text', mockUser.id);
 
             expect(mockLogger.info).toHaveBeenCalledWith('TextService.update called');
-            expect(mockRepo.update).toHaveBeenCalledWith({ id: '1', userId: 'user-123' }, { content: 'new text' });
+            expect(mockRepo.update).toHaveBeenCalledWith({ id: mockTextId, userId: mockUser.id }, { content: 'new text' });
         });
     });
 
@@ -103,10 +103,10 @@ describe('TextService', () => {
         it('should call delete on repository', async () => {
             mockRepo.delete.mockResolvedValue(null);
 
-            await service.delete('1', 'user-123');
+            await service.delete(mockTextId, mockUser.id);
 
             expect(mockLogger.info).toHaveBeenCalledWith('TextService.delete called');
-            expect(mockRepo.delete).toHaveBeenCalledWith({ id: '1', userId: 'user-123' });
+            expect(mockRepo.delete).toHaveBeenCalledWith({ id: mockTextId, userId: mockUser.id });
         });
     });
 
@@ -122,4 +122,105 @@ describe('TextService', () => {
             expect(result).toEqual(texts);
         });
     });
+
+    describe('analyzeWordCount', () => {
+        it('should return the number of words', async () => {
+            mockRepo.findOne.mockResolvedValue(text);
+
+            const result = await service.analyzeWordCount(mockTextId, mockUser.id);
+
+            expect(result).toBe(5);
+        });
+    });
+
+    describe('analyzeCharacterCount', () => {
+        it('should return character count excluding spaces', async () => {
+            mockRepo.findOne.mockResolvedValue(text);
+
+            const result = await service.analyzeCharacterCount(mockTextId, mockUser.id);
+
+            expect(result).toBe(21);
+        });
+    });
+
+    describe('analyzeSentenceCount', () => {
+        it('should count sentences ending in .!?', async () => {
+            mockRepo.findOne.mockResolvedValue(text);
+
+            const result = await service.analyzeSentenceCount(mockTextId, mockUser.id);
+
+            expect(result).toBe(3);
+        });
+
+        it('should return 0 if no sentence-ending punctuation', async () => {
+            const newText = text;
+            newText.content = 'This is not a sentence split';
+            mockRepo.findOne.mockResolvedValue(newText);
+
+            const result = await service.analyzeSentenceCount(mockTextId, mockUser.id);
+            expect(result).toBe(0);
+        });
+    });
+
+    describe('analyzeParagraphCount', () => {
+        it('should count non-empty paragraphs separated by \\n\\n', async () => {
+            const newText = text;
+            newText.content = 'First paragraph.\n\nSecond paragraph.\n\nThird.';
+            mockRepo.findOne.mockResolvedValue(newText);
+
+            const result = await service.analyzeParagraphCount(mockTextId, mockUser.id);
+            expect(result).toBe(3);
+        });
+
+        it('should ignore empty paragraphs', async () => {
+            const newText = text;
+            newText.content = 'Para 1\n\n\n\nPara 2';
+            mockRepo.findOne.mockResolvedValue(newText);
+
+            const result = await service.analyzeParagraphCount(mockTextId, mockUser.id);
+            expect(result).toBe(2);
+        });
+    });
+
+    describe('findLongestWordsInParagraphs', () => {
+        it('should return longest unique words for each paragraph', async () => {
+            const newText = text;
+            newText.content = 'Short longword longest\n\nAnother line longestwordinpara2 short';
+            mockRepo.findOne.mockResolvedValue(text);
+
+            const result = await service.findLongestWordsInParagraphs(mockTextId, mockUser.id);
+
+            expect(result).toEqual([
+                { paragraph: 1, longestWords: ['longword'] },
+                { paragraph: 2, longestWords: ['longestwordinpara2'] },
+            ]);
+        });
+
+        it('should return empty array for paragraphs with no words', async () => {
+            const newText = text;
+            newText.content = '\n\n\n\n';
+            mockRepo.findOne.mockResolvedValue(newText);
+
+            const result = await service.findLongestWordsInParagraphs(mockTextId, mockUser.id);
+
+            expect(result).toEqual([
+                { paragraph: 1, longestWords: [] },
+                { paragraph: 2, longestWords: [] },
+                { paragraph: 3, longestWords: [] },
+            ]);
+        });
+
+        it('should remove punctuation and return lowercase', async () => {
+            const newText = text;
+            newText.content = 'Word, wordy. longest! longest?';
+            mockRepo.findOne.mockResolvedValue(newText);
+
+            const result = await service.findLongestWordsInParagraphs(mockTextId, mockUser.id);
+
+            expect(result).toEqual([
+                { paragraph: 1, longestWords: ['longest'] }
+            ]);
+        });
+    });
+
 });

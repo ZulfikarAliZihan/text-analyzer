@@ -28,7 +28,7 @@ async function bootstrap() {
             routePrefix: '/api/v1',
             validation: true,
             classTransformer: true,
-            defaultErrorHandler: false
+            defaultErrorHandler: true
         });
 
         const PORT = process.env.PORT || 3000;

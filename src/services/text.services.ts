@@ -1,7 +1,3 @@
-
-
-
-
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
 import { Text } from '../entities/text.entity';
@@ -9,6 +5,7 @@ import { AppDataSource } from '../data-source';
 import { AppLogger } from '../utils/app-logger';
 import { NotFoundError } from 'routing-controllers';
 import { LongestWordsInParagraph } from '../dtos/text-analysis.dto';
+import { Cache } from '../utils/cache.decorator';
 
 
 @Service()
@@ -29,7 +26,7 @@ export class TextService {
 
         return await this.textRepo.save(text);
     }
-
+    @Cache()
     async get(id: string, userId: string): Promise<Text> {
         this.logger.info(`${TextService.name}.get called`)
 
@@ -51,6 +48,7 @@ export class TextService {
         await this.textRepo.delete({ id: id, userId: userId });
     }
 
+    @Cache()
     async getAllByUserId(userId: string): Promise<Text[]> {
         this.logger.info(`${TextService.name}.getAllByUserId called`)
 
@@ -59,6 +57,7 @@ export class TextService {
         return texts;
     }
 
+    @Cache()
     async analyzeWordCount(textId: string, userId: string): Promise<number> {
         this.logger.info(`${TextService.name}.analyzeWordCount called`)
 
@@ -66,6 +65,7 @@ export class TextService {
         return this.splitTextIntoWords(text.content).length;
     }
 
+    @Cache()
     async analyzeCharacterCount(textId: string, userId: string): Promise<number> {
         this.logger.info(`${TextService.name}.analyzeCharacterCount called`)
 
@@ -73,6 +73,7 @@ export class TextService {
         return text.content.replace(/\s+/g, '').length;
     }
 
+    @Cache()
     async analyzeSentenceCount(textId: string, userId: string): Promise<number> {
         this.logger.info(`${TextService.name}.analyzeSentenceCount called`)
 
@@ -81,6 +82,7 @@ export class TextService {
         return sentences ? sentences.length : 0;
     }
 
+    @Cache()
     async analyzeParagraphCount(textId: string, userId: string): Promise<number> {
         this.logger.info(`${TextService.name}.analyzeParagraphCount called`)
 
@@ -89,6 +91,7 @@ export class TextService {
         return paragraphs.filter(p => p.trim().length > 0).length;
     }
 
+    @Cache()
     async findLongestWordsInParagraphs(textId: string, userId: string): Promise<LongestWordsInParagraph[]> {
         this.logger.info(`${TextService.name}.analyzeParagraphCount called`)
 

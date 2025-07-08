@@ -29,6 +29,7 @@ export class LongestWordsOutput {
 export class LongestWordsInParagraph {
     @Expose()
     paragraph: number;
+    @Expose()
     longestWords: string[];
 }
 export class TextAnalysisReport {

@@ -210,7 +210,7 @@ describe('TextController', () => {
 
             mockTextService.getFullAnalysisReport = jest.fn().mockResolvedValue(mockReport);
 
-            const res = await request(app).get(`/texts/${mockTextId}/analysis`);
+            const res = await request(app).get(`/texts/${mockTextId}/analysis-report`);
 
             expect(res.status).toBe(200);
             expect(res.body).toEqual(mockReport);

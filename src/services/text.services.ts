@@ -135,6 +135,8 @@ export class TextService {
         paragraphCount: number;
         longestWords: LongestWordsInParagraph[];
     }> {
+        this.logger.info(`${TextService.name}.getFullAnalysisReport called`)
+
         const [wordCount, characterCount, sentenceCount, paragraphCount, longestWords] = await Promise.all([
             this.analyzeWordCount(textId, userId),
             this.analyzeCharacterCount(textId, userId),

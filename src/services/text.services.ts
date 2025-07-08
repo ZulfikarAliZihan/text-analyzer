@@ -128,6 +128,30 @@ export class TextService {
         return longestWordsPerParagraph
     }
 
+    async getFullAnalysisReport(textId: string, userId: string): Promise<{
+        wordCount: number;
+        characterCount: number;
+        sentenceCount: number;
+        paragraphCount: number;
+        longestWords: LongestWordsInParagraph[];
+    }> {
+        const [wordCount, characterCount, sentenceCount, paragraphCount, longestWords] = await Promise.all([
+            this.analyzeWordCount(textId, userId),
+            this.analyzeCharacterCount(textId, userId),
+            this.analyzeSentenceCount(textId, userId),
+            this.analyzeParagraphCount(textId, userId),
+            this.findLongestWordsInParagraphs(textId, userId),
+        ]);
+
+        return {
+            wordCount,
+            characterCount,
+            sentenceCount,
+            paragraphCount,
+            longestWords,
+        };
+    }
+
     private splitTextIntoWords(text: string): string[] {
         return text
             .toLowerCase()

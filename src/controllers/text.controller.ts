@@ -15,6 +15,7 @@ import {
     LongestWordsOutput,
     ParagraphCountOutput,
     SentenceCountOutput,
+    TextAnalysisReport,
     WordCountOutput
 } from '../dtos/text-analysis.dto';
 import { Service, Inject } from 'typedi';
@@ -166,4 +167,21 @@ export class TextController {
 
         return plainToClass(LongestWordsOutput, { paragraphs: longestWords });
     }
+
+    @Get('/:id/analysis-report')
+    @HttpCode(200)
+    async getFullTextAnalysis(
+        @Params() params: TextParam,
+        @Req() request: Request
+    ): Promise<TextAnalysisReport> {
+        this.logger.info(`${TextController.name}.getFullTextAnalysis called`);
+        const userId = request['user']?.userId;
+
+        const analysis = await this.textService.getFullAnalysisReport(params.id, userId);
+
+        return plainToClass(TextAnalysisReport, analysis, {
+            excludeExtraneousValues: true,
+        });
+    }
+
 }

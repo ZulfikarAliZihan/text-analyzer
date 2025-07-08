@@ -31,3 +31,20 @@ export class LongestWordsInParagraph {
     paragraph: number;
     longestWords: string[];
 }
+export class TextAnalysisReport {
+    @Expose()
+    wordCount: number;
+
+    @Expose()
+    characterCount: number;
+
+    @Expose()
+    sentenceCount: number;
+
+    @Expose()
+    paragraphCount: number;
+
+    @Expose()
+    @Type(() => LongestWordsInParagraph)
+    longestWords: LongestWordsInParagraph[];
+}

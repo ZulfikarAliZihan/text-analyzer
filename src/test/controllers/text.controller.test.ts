@@ -34,6 +34,7 @@ describe('TextController', () => {
         analyzeSentenceCount: jest.fn(),
         analyzeParagraphCount: jest.fn(),
         findLongestWordsInParagraphs: jest.fn(),
+        getFullAnalysisReport: jest.fn(),
     };
 
     const mockTextId = 'ba1f4f6a-c986-433c-87e6-1a215ce436fa';
@@ -194,5 +195,27 @@ describe('TextController', () => {
         });
     });
 
+    describe('GET /texts/:id/analysis-report', () => {
+        it('should return full analysis report', async () => {
+            const mockReport = {
+                wordCount: 10,
+                characterCount: 50,
+                sentenceCount: 3,
+                paragraphCount: 2,
+                longestWords: [
+                    { paragraph: 1, longestWords: ['extraordinary'] },
+                    { paragraph: 2, longestWords: ['communication'] },
+                ]
+            };
+
+            mockTextService.getFullAnalysisReport = jest.fn().mockResolvedValue(mockReport);
+
+            const res = await request(app).get(`/texts/${mockTextId}/analysis`);
+
+            expect(res.status).toBe(200);
+            expect(res.body).toEqual(mockReport);
+            expect(mockTextService.getFullAnalysisReport).toHaveBeenCalledWith(mockTextId, mockUserId);
+        });
+    });
 });
 

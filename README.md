@@ -182,20 +182,28 @@ All services are fully tested with Jest and follow TDD best practices.
 ```
 text-analyzer/
 ├── src/
-│   ├── config/             # Configurations
 │   ├── controllers/        # API routes
 │   ├── entities/           # TypeORM entities
-│   ├── repositories/       # DB interaction interfaces
 │   ├── services/           # Business logic
 │   ├── dtos/               # Data transfer objects
 │   ├── middleware/         # Auth, rate-limiting, etc.
+│   ├── test/               # Jest unit/integration tests
+|   └── utils               # Utility functions like logger, decorator
+│   ├── data-source.ts      # TypeORM Datasource
+│   ├── swagger.json        # OpenAPI specification for API doc
 │   └── index.ts            # App entry point
-├── test/                   # Jest unit/integration tests
 ├── migrations/             # TypeORM migration files
-├── swagger.json            # OpenAPI spec for Swagger UI
-├── Dockerfile              # Docker image definition
-├── docker-compose.yml      # Multi-container setup
-└── README.md               # You're here!
+├── .env.example            
+├── .eslintrc.json
+├── .gitignore
+├── .prettierrc
+├── jest.config.ts
+├── ormconfig.ts
+├── package-lock.json
+├── package.json
+├── README.md
+├── tsconfig.build.json
+└── tsconfig.json
 ```
 
 ---

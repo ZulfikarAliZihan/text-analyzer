@@ -28,7 +28,7 @@ export function Cache(options: CacheOptions = {}) {
 
             try {
                 const cached = await redisClient.get(key);
-                if (cached) {
+                if (cached && process.env.NODE_ENV != 'test') {
                     await redisClient.quit();
                     return JSON.parse(cached);
                 }
@@ -40,7 +40,6 @@ export function Cache(options: CacheOptions = {}) {
 
                 return result;
             } catch (error) {
-                console.warn(`[Cache] Failed to use Redis cache for ${key}:`, error);
                 await redisClient.quit();
                 return originalMethod.apply(this, args);
             }
